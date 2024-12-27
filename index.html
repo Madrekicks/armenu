@@ -1,47 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Markerless AR Viewer</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR Menu - Markerless</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
 </head>
-<body style="margin: 0; overflow: hidden;">
-    <h1>Markerless AR Viewer</h1>
-    <a-scene embedded arjs="trackingMethod: best;">
-        <a-entity camera></a-entity>
-        <!-- Your 3D Model Entity -->
-        <a-entity id="model"
-                  obj-model="obj: url(model.obj); mtl: url(3DModel.mtl);"
-                  scale="5 5 5"
-                  position="0 0 0"
-                  gesture-detector>
-        </a-entity>
-    </a-scene>
-    <script>
-        // Gesture handling for interaction
-        var model = document.getElementById('model');
-        model.addEventListener('gesturestart', function(event) {
-            console.log('Gesture start:', event);
-        });
+<body>
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
+    import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/webxr/ARButton.js';
+    import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/OBJLoader.js';
+    import { MTLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/MTLLoader.js';
 
-        model.addEventListener('gesturechange', function(event) {
-            console.log('Gesture change:', event);
+    // Scene and Camera
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 2;
 
-            if (event.detail.state === 'pan') {
-                model.object3D.position.x += event.detail.dx / 100;
-                model.object3D.position.y -= event.detail.dy / 100;
-            } else if (event.detail.state === 'rotate') {
-                model.object3D.rotation.y += event.detail.dTheta / 100;
-            } else if (event.detail.state === 'pinch') {
-                model.object3D.scale.x *= event.detail.ds;
-                model.object3D.scale.y *= event.detail.ds;
-                model.object3D.scale.z *= event.detail.ds;
-            }
-        });
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.xr.enabled = true;
+    document.body.appendChild(renderer.domElement);
 
-        model.addEventListener('gestureend', function(event) {
-            console.log('Gesture end:', event);
-        });
-    </script>
+    // AR Button
+    document.body.appendChild(ARButton.createButton(renderer));
+
+    // Lighting
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(1, 2, 3).normalize();
+    scene.add(light);
+
+    const ambientLight = new THREE.AmbientLight(0x404040, 1);
+    scene.add(ambientLight);
+
+    // Load 3D Model (OBJ + MTL)
+    const mtlLoader = new MTLLoader();
+    mtlLoader.load('./3DModel.mtl', (materials) => {
+      materials.preload();
+      const objLoader = new OBJLoader();
+      objLoader.setMaterials(materials);
+      objLoader.load('./model.obj', (object) => {
+        object.scale.set(1, 1, 1); // Adjust scale if needed
+        scene.add(object);
+      });
+    });
+
+    // Interaction: Tap to place the object
+    let objectPlaced = false;
+    const controller = renderer.xr.getController(0);
+    controller.addEventListener('select', () => {
+      if (!objectPlaced) {
+        // Place object in front of user
+        objectPlaced = true;
+      }
+    });
+    scene.add(controller);
+
+    // Animation loop
+    const animate = () => {
+      renderer.setAnimationLoop(() => {
+        renderer.render(scene, camera);
+      });
+    };
+
+    animate();
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
 </body>
 </html>

@@ -1,30 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AR Viewer</title>
+    <title>Interactive AR Viewer</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://unpkg.com/aframe-gesture-detector-component/dist/aframe-gesture-detector-component.min.js"></script>
 </head>
 <body style="margin: 0; overflow: hidden;">
+    <h1>Interactive AR Viewer</h1>
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: true;">
-        <!-- Marker -->
         <a-marker preset="hiro">
-            <a-entity 
-                obj-model="obj: url(model.obj); mtl: url(3DModel.mtl);" 
-                scale="0.1 0.1 0.1" 
-                position="0 0 0">
+            <a-entity id="model"
+                      gesture-detector
+                      obj-model="obj: url(model.obj); mtl: url(model.mtl);"
+                      scale="0.1 0.1 0.1"
+                      position="0 0 0">
             </a-entity>
         </a-marker>
         <a-entity camera></a-entity>
     </a-scene>
     <script>
-        // Log marker detection events to the console
-        var marker = document.querySelector('a-marker');
-        marker.addEventListener('markerFound', () => {
-            console.log('Marker Found');
+        // Gesture handling
+        var model = document.getElementById('model');
+        model.addEventListener('gesturestart', function(event) {
+            console.log('Gesture start:', event);
         });
-        marker.addEventListener('markerLost', () => {
-            console.log('Marker Lost');
+
+        model.addEventListener('gesturechange', function(event) {
+            console.log('Gesture change:', event);
+
+            if (event.detail.state === 'pan') {
+                model.object3D.position.x += event.detail.dx / 100;
+                model.object3D.position.y -= event.detail.dy / 100;
+            } else if (event.detail.state === 'rotate') {
+                model.object3D.rotation.y += event.detail.dTheta / 100;
+            } else if (event.detail.state === 'pinch') {
+                model.object3D.scale.x *= event.detail.ds;
+                model.object3D.scale.y *= event.detail.ds;
+                model.object3D.scale.z *= event.detail.ds;
+            }
+        });
+
+        model.addEventListener('gestureend', function(event) {
+            console.log('Gesture end:', event);
         });
     </script>
 </body>

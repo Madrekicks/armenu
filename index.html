@@ -13,14 +13,16 @@
 </head>
 <body>
 
-  <!-- Include Three.js and ARButton from CDN -->
+  <!-- Include Three.js via CDN (non-module) -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script> <!-- Optional: OrbitControls -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/webxr/ARButton.js"></script> <!-- ARButton -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/OBJLoader.js"></script> <!-- OBJLoader -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/MTLLoader.js"></script> <!-- MTLLoader -->
+  
+  <!-- Include ARButton, OBJLoader, MTLLoader via CDN (non-module) -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/webxr/ARButton.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/OBJLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/MTLLoader.js"></script>
 
-  <!-- Your custom script to set up the AR menu -->
+  <!-- Your custom JavaScript code -->
   <script>
     // Scene and Camera
     const scene = new THREE.Scene();
